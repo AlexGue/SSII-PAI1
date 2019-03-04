@@ -1,0 +1,9 @@
+{
+  "ficheros": [
+    "C:\\Users\\2aalf\\Documents\\Uni\\SSII\\PAI1\\ficheros\\fich1.txt",
+    "C:\\Users\\2aalf\\Documents\\Uni\\SSII\\PAI1\\ficheros\\fich2.txt"
+  ],
+  "algoritmo": "SHA-2",
+  "ficheroIncidencias": "ruta",
+  "tiempoComprobacion": "10"
+}
