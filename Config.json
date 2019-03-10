@@ -1,9 +1,10 @@
 {
   "ficheros": [
-    "C:\\Users\\2aalf\\Documents\\Uni\\SSII\\PAI1\\ficheros\\fich1.txt",
-    "C:\\Users\\2aalf\\Documents\\Uni\\SSII\\PAI1\\ficheros\\fich2.txt"
+    "C:\\Users\\Ale\\Documents\\dump2",
+    "C:\\Users\\Ale\\Documents\\dump3",
+    "C:\\Users\\Ale\\Documents\\dump4"
   ],
-  "algoritmo": "SHA-2",
+  "algoritmo": "sha256",
   "ficheroIncidencias": "ruta",
   "tiempoComprobacion": "10"
 }
