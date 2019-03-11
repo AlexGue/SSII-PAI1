@@ -4,6 +4,9 @@ import hashlib
 import time
 import datetime
 import json
+import requests
+
+
 # BUF_SIZE is totally arbitrary, change for your app!
 BUF_SIZE = 65536  # lets read stuff in 64kb chunks!
 configFile = "Config.json"
@@ -26,6 +29,12 @@ def leeFicheroIncidencias(file):
     ficheroIncidencias=data['ficheroIncidencias']
     return ficheroIncidencias
 
+def leeServer(file):
+    f = open (file, "r",encoding='utf-8')
+    data = json.load(f)
+    server=data['server']
+    return server
+
 def leeTiempoComprobacion(file):
     f = open (file, "r",encoding='utf-8')
     data = json.load(f)
@@ -37,7 +46,8 @@ filesToCheck = leeFicheros(configFile)
 repeatTime = leeTiempoComprobacion(configFile)
 now = datetime.datetime.now()
 algorithm = leeAlgoritmo(configFile)
-
+server = leeServer(configFile)
+statusURL = server + "/sendStatus/" 
 
 
 
@@ -53,7 +63,7 @@ def storeInLogFile(line):
 def checkFiles(): 
     hashes = []
     nowTime = datetime.datetime.now()
-    storeInLogFile("Starting file check | " + str(nowTime) )
+    storeInLogFile("Starting file check |" + str(nowTime) )
     for fileH in filesToCheck:
         hashR = getattr(hashlib, algorithm)()
         with open(fileH, 'rb') as f:
@@ -62,7 +72,7 @@ def checkFiles():
                 if not data:
                     break
                 hashFile = hashR.update(data)
-        lineLog = ("{0}|{2}| of file {1}".format(hashR.hexdigest(), fileH, algorithm))
+        lineLog = ("{0}|{2}|{1}".format(hashR.hexdigest(), fileH, algorithm))
         hashes.append(hashR.hexdigest())
         print(lineLog)
         storeInLogFile(lineLog)
@@ -71,6 +81,13 @@ def checkFiles():
     hashAlg.update(finalLog.encode('utf-8'))
     hashFinal = hashAlg.hexdigest()
     storeInLogFile("Finished file check | " + hashFinal)
+    try:
+        r = requests.get(statusURL + hashFinal)
+        print("Response from server: " + r.status_code)
+    except:
+        print("Error connecting to the server.")
+        storeInLogFile("Error connecting to the server.|" + str(nowTime))
+
 
 def startChecks():
     starttime=time.time()

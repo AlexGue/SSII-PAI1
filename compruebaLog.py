@@ -5,71 +5,77 @@ from datetime import datetime, timedelta
 # el datetime.now() por datetime.datetime.now()
 # y el timedelta(...) por datetime.timedelta(...)
 #dependiendo de los imports
-def compruebaLog(ruta, numeroFicheros, tiempoComprobacion):
-    ficheroC = "results/ficheroComprobacion.log"
-    fileFicheroC = {}
-    try:
-        fileFicheroC = open(ficheroC, 'a')
-    except IOError:
-        fileFicheroC = open(ficheroC, 'a')
+def compruebaLog(ruta, tiempoComprobacion):
+
 
     for filename in os.listdir(ruta):
-        ficheroNombre = 'Fichero: '+filename
-        fileFicheroC.write(ficheroNombre + '\n')
-        rutafich = ruta+'\\' + filename
-        f = open (rutafich, "r",encoding='utf-8')
+        now = datetime.now()
+        if not filename == str(now.day) + "-" + str(now.month) + "-" + str(now.year)  + ".log":
+            ficheroC = rutaAnalysis + "/" + filename  + "_" + str(now.day) + "-" + str(now.month) + "-" + str(now.year)  + ".log"
+            fileFicheroC = {}
+            try:
+                fileFicheroC = open(ficheroC, 'a')
+            except IOError:
+                fileFicheroC = open(ficheroC, 'a')
+            ficheroNombre = 'Fichero: '+filename
+            fileFicheroC.write("================ INICIALIZANDO COMPROBACION DE LOG: " + ficheroNombre +  " ===============  " +'\n' )
+            rutafich = ruta+'\\' + filename
+            f = open (rutafich, "r",encoding='utf-8')
 
-        lines = [line.rstrip('\n') for line in f]
-        fichs = []
-        starts = []
-        for n in lines:
-            if ('Starting' not in n) & ('Finished' not in n):
-                fichs.append(n)
-            else:
-                if ('Starting' in n):
-                    starts.append(n)
-                    
-        hashes = []
-        for fich in fichs:
-            split1 = fich.split()
-            hashYAlgoritmo = split1[0]
-            hashh = hashYAlgoritmo.split('|')[0]
-            hashes.append(hashh)
+            lines = [line.rstrip('\n') for line in f]
+            files = {}
+            currentTime = ""
+            for n in lines:
+                if (not n.startswith('Starting')) & (not n.startswith('Finished')) & (not n.startswith('Error')) :
+                    split = n.split('|')
+                    if (not split[2] in files):
+                        files[split[2]] = []
+                    logData = {
+                    "hash": split[0],
+                    "algorithm": split[1],
+                    "currentTime": currentTime
+                    }
+                    files[split[2]].append(logData)
+                else:
+                    if (n.startswith('Starting')):
+                        split = n.split('|')
+                        currentTime = split[1]
+            for key in files:
+                print("Analizando fichero: " + key)
+                fileFicheroC.write("== Analizando fichero == | " + key + '\n')
+                log = files[key]
+                dataAnterior = {}
+                for x in log:
+                    if dataAnterior != {}:
+                        hashAnterior = dataAnterior["hash"]
+                        timeAnterior = dataAnterior["currentTime"]
+                        if hashAnterior != x["hash"]:
+                            print("Cambio detectado: " + x["currentTime"])
+                            fileFicheroC.write("Cambio detectado: " + x["currentTime"] + '\n')
+                        timeDate= datetime.strptime(timeAnterior, '%Y-%m-%d %H:%M:%S.%f')
+                        timeDate2= datetime.strptime(x["currentTime"], '%Y-%m-%d %H:%M:%S.%f')
+                        if timeDate2 > (timeDate + timedelta(0,tiempoComprobacion+0.5)):
+                            ErrorTiempo = 'El tiempo de comprobacion fue mayor del esperado, en la fecha: ' + str(timeDate2)
+                            print(ErrorTiempo)
+                            fileFicheroC.write(ErrorTiempo +'\n')
+                    dataAnterior = x
+            f.close()
+            os.rename(rutaLogs + '/' + filename, rutaFinishedLogs + '/' + filename)
 
-        times = []
-        for time in starts:
-            timeSplit = time.split('| ')[1]
-            times.append(timeSplit)
-        
-        errores = 0
-        for index in range(0,len(hashes)-numeroFicheros):
-            if hashes[index] != hashes[index+numeroFicheros]:
-                lineaCambio = 'Cambio: '+str(datetime.now())+', Hash inicial: '+hashes[index]+', Hash final: '+hashes[index+numeroFicheros]
-                fileFicheroC.write(lineaCambio + '\n')
-                errores = errores +1
-        if errores == 0:
-            SinCambios = 'Sin cambios'
-            fileFicheroC.write(SinCambios + '\n')
-            
-        for indexTime in range(0,len(times)-1):
-            timeDate= datetime.strptime(times[indexTime], '%Y-%m-%d %H:%M:%S.%f')
-            timeDate2= datetime.strptime(times[indexTime+1], '%Y-%m-%d %H:%M:%S.%f')
-            if timeDate2 > (timeDate + timedelta(0,tiempoComprobacion+0.5)):
-                ErrorTiempo = 'El tiempo de comprobacion fue mayor del esperado. '
-                fileFicheroC.write(ErrorTiempo +str(datetime.now())+ '\n')
                 
         
 
-
-rutaLog = r'C:\Users\2aalf\Documents\Uni\SSII\Workspace SSII\PAI1\PAI1\Subido\results\logs'
+baseRuta = r'C:\Users\Ale\Desktop\Universidad\SSII\PAI 1\results'
+rutaLogs = baseRuta + r'\logs'
+rutaFinishedLogs = baseRuta + r'\logs-finished'
+rutaAnalysis = baseRuta + r'\analysis'
 
 #Se le pasa como parametros la ruta del directorio de los logs,
 #el numero de ficheros que se comprueban (cuyo numero se obtiene con las funciones mas abajo)
 #y el tiempo de comprobacion
-compruebaLog(rutaLog,2,10)
+compruebaLog(rutaLogs,10)
 
 #number_files devuelve el numero de ficheros que estan en la ruta definida en listaFicheros
-rutaFicheros = r'C:\Users\2aalf\Documents\Uni\SSII\PAI1\ficheros'
+rutaFicheros = r'C:\Users\Ale\Desktop\Universidad\SSII\PAI 1\ficheros'
 listaFicheros = os.listdir(rutaFicheros)
 number_files = len(listaFicheros)
-print (number_files)

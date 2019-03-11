@@ -1,10 +1,11 @@
 {
   "ficheros": [
-    "C:\\Users\\Ale\\Documents\\dump2",
-    "C:\\Users\\Ale\\Documents\\dump3",
-    "C:\\Users\\Ale\\Documents\\dump4"
+    "C:\\Users\\Ale\\Desktop\\Universidad\\SSII\\PAI 1\\ficheros\\dump3",
+    "C:\\Users\\Ale\\Desktop\\Universidad\\SSII\\PAI 1\\ficheros\\dump4",
+    "C:\\Users\\Ale\\Desktop\\Universidad\\SSII\\PAI 1\\ficheros\\dump15"
   ],
   "algoritmo": "sha256",
   "ficheroIncidencias": "ruta",
-  "tiempoComprobacion": "10"
+  "tiempoComprobacion": "10",
+  "server": "https://pai1.alexgd.es"
 }
